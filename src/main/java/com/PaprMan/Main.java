@@ -25,9 +25,10 @@ public class Main extends Application {
 
         // Tab Pane set up
         TabPane tabPane = new TabPane();
-        Tab tab1 = new Tab();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        Tab tab1 = new Tab("Hello, World!");
         tab1.setContent(new Label("Hello world from the first pane!"));
-        Tab tab2 = new Tab();
+        Tab tab2 = new Tab("Tab Name Two");
         tab2.setContent(new Label("This is the second label."));
         tabPane.getTabs().addAll(tab1, tab2);
 
@@ -45,6 +46,8 @@ public class Main extends Application {
 
         stage.setScene(scene);
         stage.setTitle("PaprMan " + Constants.VERSION_NUMBER);
+        stage.setWidth(Constants.DEFAULT_STAGE_WIDTH);
+        stage.setHeight(Constants.DEFAULT_STAGE_HEIGHT);
         stage.show();
     }
 }
