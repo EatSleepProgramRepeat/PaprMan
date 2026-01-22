@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.openjfx.javafxplugin") version "0.1.0"
+    id("org.openjfx.javafxplugin") version "0.0.13"
     application
 }
 
@@ -12,8 +12,14 @@ repositories {
 }
 
 javafx {
-    version = "25.0.2"
+    version = "17.0.6"
     modules("javafx.controls", "javafx.fxml")
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
 }
 
 application {
