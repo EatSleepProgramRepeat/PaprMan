@@ -9,6 +9,9 @@ Add to "File":
 - Open Config File...
 - Save
 
+Add to "Edit":
+- Nothing planned yet.
+
 Add to "View":
 - Large Icons
 - Medium Icons

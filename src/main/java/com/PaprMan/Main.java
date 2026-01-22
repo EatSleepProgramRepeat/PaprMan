@@ -22,9 +22,46 @@ public class Main extends Application {
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.setOnAction(e -> System.exit(0));
 
+        // File menu options
+        MenuItem fileOpenFolder = new MenuItem("Open Folder...");
+        MenuItem fileOpenConfig = new MenuItem("Open Config File...");
+        MenuItem fileSave = new MenuItem("Save");
+
+        //ToggleGroup for view options
+        ToggleGroup viewOptionToggleGroup = new ToggleGroup();
+
+        // View menu options
+        RadioMenuItem viewIconsSmall = new RadioMenuItem("Small Icons");
+        RadioMenuItem viewIconsMedium = new RadioMenuItem("Medium Icons");
+        RadioMenuItem viewIconsLarge = new RadioMenuItem("Large Icons");
+        RadioMenuItem viewList = new RadioMenuItem("List");
+        MenuItem viewHelp = new MenuItem("Help");
+
+        // Options menu options
+        MenuItem optionsSettings = new MenuItem("Settings");
+
+        // Set toggle group
+        viewIconsSmall.setToggleGroup(viewOptionToggleGroup);
+        viewIconsMedium.setToggleGroup(viewOptionToggleGroup);
+        viewIconsLarge.setToggleGroup(viewOptionToggleGroup);
+        viewList.setToggleGroup(viewOptionToggleGroup);
+
         // Add things to the menus (and bar)
-        fileMenu.getItems().add(exitItem);
-        mainMenuBar.getMenus().addAll(fileMenu, editMenu, viewMenu, optionsMenu);
+        fileMenu.getItems().addAll(
+                fileSave, fileOpenFolder, fileOpenConfig, exitItem
+        );
+        // editMenu.getItems().addAll();
+        viewMenu.getItems().addAll(
+                viewIconsSmall, viewIconsMedium, viewIconsLarge, viewList,
+                new SeparatorMenuItem(),
+                viewHelp
+        );
+        optionsMenu.getItems().addAll(
+                optionsSettings
+        );
+        mainMenuBar.getMenus().addAll(
+                fileMenu, editMenu, viewMenu, optionsMenu
+        );
 
         // Tab Pane set up
         TabPane tabPane = new TabPane();
