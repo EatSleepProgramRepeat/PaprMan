@@ -4,6 +4,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.util.Objects;
@@ -63,18 +65,38 @@ public class Main extends Application {
                 fileMenu, editMenu, viewMenu, optionsMenu
         );
 
-        // Tab Pane set up
-        TabPane tabPane = new TabPane();
-        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        Tab tab1 = new Tab("Hello, World!");
-        tab1.setContent(new Label("Hello world from the first pane!"));
-        Tab tab2 = new Tab("Tab Name Two");
-        tab2.setContent(new Label("This is the second label."));
-        tabPane.getTabs().addAll(tab1, tab2);
+        // Main image pane setup
+        GridPane mainImagePane = new GridPane();
+        mainImagePane.setMaxWidth(Double.MAX_VALUE);
+        mainImagePane.setMaxHeight(Double.MAX_VALUE);
+
+        // Column constraints (will be used)
+        int numberOfColumns = 3;
+        // Iterate over all columns to set constraints
+        for (int i = 0; i < numberOfColumns; i++) {
+            ColumnConstraints constraints = new ColumnConstraints();
+            constraints.setPercentWidth((double) 100 / numberOfColumns);
+            mainImagePane.getColumnConstraints().add(constraints);
+        }
+
+        // DEMONSTRATION CODE
+        Label label1 = new Label("This is a test");
+        Label label2 = new Label("This is a test");
+        Label label3 = new Label("This is a test");
+        Label label4 = new Label("This is a test");
+        Label label5 = new Label("This is a test");
+        Label label6 = new Label("This is a test");
+        GridPane.setConstraints(label1, 0, 0);
+        GridPane.setConstraints(label2, 1, 0);
+        GridPane.setConstraints(label3, 2, 0);
+        GridPane.setConstraints(label4, 0, 1);
+        GridPane.setConstraints(label5, 1, 1);
+        GridPane.setConstraints(label6, 2, 1);
+        mainImagePane.getChildren().addAll(label1, label2, label3, label4, label5, label6);
 
         BorderPane root = new BorderPane();
         root.setTop(mainMenuBar);
-        root.setCenter(tabPane);
+        root.setCenter(mainImagePane);
 
         Scene scene = new Scene(root);
 
