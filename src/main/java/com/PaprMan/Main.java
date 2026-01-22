@@ -7,6 +7,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         // Menu Bar setup tests...
         MenuBar mainMenuBar = new MenuBar();
+        mainMenuBar.setUseSystemMenuBar(false);     // Fix for Linux systems (specifically Wayland)
         Menu fileMenu = new Menu("File");
         Menu editMenu = new Menu("Edit");
         Menu viewMenu = new Menu("View");
@@ -105,6 +107,11 @@ public class Main extends Application {
                         getClass().getResource("/style/style.css")
                 ).toExternalForm())
         ;
+
+        // Fix for linux systems
+        if (Constants.OS_NAME.contains("nix") || Constants.OS_NAME.contains("nux")) {
+            stage.initStyle(StageStyle.UTILITY);
+        }
 
         stage.setScene(scene);
         stage.setTitle("PaprMan " + Constants.VERSION_NUMBER);
