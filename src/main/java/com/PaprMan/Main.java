@@ -6,12 +6,23 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 public class Main extends Application {
+    private ImageProcessor imageProcessor = new ImageProcessor();
+
+    private File selectedFile;
+
     @Override
     public void start(Stage stage) throws Exception {
         // Menu Bar setup tests...
@@ -40,6 +51,7 @@ public class Main extends Application {
         RadioMenuItem viewIconsLarge = new RadioMenuItem("Large Icons");
         RadioMenuItem viewList = new RadioMenuItem("List");
         MenuItem viewHelp = new MenuItem("Help");
+        viewIconsMedium.setSelected(true);
 
         // Options menu options
         MenuItem optionsSettings = new MenuItem("Settings");
@@ -72,30 +84,6 @@ public class Main extends Application {
         mainImagePane.setMaxWidth(Double.MAX_VALUE);
         mainImagePane.setMaxHeight(Double.MAX_VALUE);
 
-        // Column constraints (will be used)
-        int numberOfColumns = 3;
-        // Iterate over all columns to set constraints
-        for (int i = 0; i < numberOfColumns; i++) {
-            ColumnConstraints constraints = new ColumnConstraints();
-            constraints.setPercentWidth((double) 100 / numberOfColumns);
-            mainImagePane.getColumnConstraints().add(constraints);
-        }
-
-        // DEMONSTRATION CODE
-        Label label1 = new Label("This is a test");
-        Label label2 = new Label("This is a test");
-        Label label3 = new Label("This is a test");
-        Label label4 = new Label("This is a test");
-        Label label5 = new Label("This is a test");
-        Label label6 = new Label("This is a test");
-        GridPane.setConstraints(label1, 0, 0);
-        GridPane.setConstraints(label2, 1, 0);
-        GridPane.setConstraints(label3, 2, 0);
-        GridPane.setConstraints(label4, 0, 1);
-        GridPane.setConstraints(label5, 1, 1);
-        GridPane.setConstraints(label6, 2, 1);
-        mainImagePane.getChildren().addAll(label1, label2, label3, label4, label5, label6);
-
         BorderPane root = new BorderPane();
         root.setTop(mainMenuBar);
         root.setCenter(mainImagePane);
@@ -109,14 +97,89 @@ public class Main extends Application {
         ;
 
         // Fix for linux systems
-        if (Constants.OS_NAME.contains("nix") || Constants.OS_NAME.contains("nux")) {
+        if (!Constants.OS_NAME.contains("win")) {
             stage.initStyle(StageStyle.UTILITY);
         }
+
+        // #######################
+        // ### EVENT LISTENERS ###
+        // #######################
+
+        // File menu options event listeners
+        // Open Folder...
+        fileOpenFolder.setOnAction(e -> {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            directoryChooser.setTitle("Select a Wallpaper Folder...");
+            directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+            selectedFile = directoryChooser.showDialog(stage);
+
+            if (selectedFile != null) {
+                // Check for any image files
+                imageProcessor.setImageDirectory(selectedFile);
+                if (imageProcessor.imagesPresent()) {
+                    // Processing code for images that exist.
+//                    try (Stream<Path> stream = Files.newDirectoryStream(selectedFile.toPath(), "")) {
+//                        stream.filter()
+//                    } catch (IOException ex) {
+//                        throw new RuntimeException(ex);
+//                    }
+
+                } else {
+                    showAlert(
+                            "There were no image files found in the directory you selected.",
+                            "Error"
+                    );
+                }
+            }
+        });
+
+        // View menu options event listeners
+        // Small Icons
+        viewIconsSmall.setOnAction(e -> {
+            updateColumnConstraints(4, mainImagePane);
+        });
+
+        // Medium Icons
+        viewIconsMedium.setOnAction(e -> {
+            updateColumnConstraints(3, mainImagePane);
+        });
+
+        // Large Icons
+        viewIconsLarge.setOnAction(e -> {
+            updateColumnConstraints(2, mainImagePane);
+        });
+
+        updateColumnConstraints(3, mainImagePane);
 
         stage.setScene(scene);
         stage.setTitle("PaprMan " + Constants.VERSION_NUMBER);
         stage.setWidth(Constants.DEFAULT_STAGE_WIDTH);
         stage.setHeight(Constants.DEFAULT_STAGE_HEIGHT);
         stage.show();
+    }
+
+    private void updateColumnConstraints(int c , GridPane p) {
+        // Iterate over all columns to set constraints
+        for (int i = 0; i < c; i++) {
+            ColumnConstraints constraints = new ColumnConstraints();
+            constraints.setPercentWidth((double) 100 / c);
+            p.getColumnConstraints().removeAll();
+            p.getColumnConstraints().add(constraints);
+        }
+    }
+
+    private void showAlert(String bt, String tt) {
+        Dialog<Boolean> dialog = new Dialog<>();
+        ButtonType buttonType = new ButtonType("OK", ButtonType.OK.getButtonData());
+        dialog.getDialogPane().getButtonTypes().add(buttonType);
+        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/style.css")).toExternalForm());
+        dialog.initStyle(StageStyle.UTILITY);
+
+
+        Label information = new Label(bt);
+        dialog.getDialogPane().setContent(information);
+
+        dialog.show();
     }
 }

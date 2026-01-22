@@ -1,9 +1,9 @@
 # Project Roadmap
 
 ### 📋 Todo
-- [ ] #5 Correctly set up the Open Folder button to select a directory and filter out image files [More Information...](docs/5-setup-open-folder.md) (5-setup-open-folder)
 
 ### 🏗️ In Progress
+- [ ] #5 Correctly set up the Open Folder button to select a directory and filter out image files [More Information...](docs/5-setup-open-folder.md) (5-setup-open-folder)
 
 
 ### ✅ Done
