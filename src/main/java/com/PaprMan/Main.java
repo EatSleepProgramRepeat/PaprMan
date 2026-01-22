@@ -14,6 +14,9 @@ public class Main extends Application {
         // Menu Bar setup tests...
         MenuBar mainMenuBar = new MenuBar();
         Menu fileMenu = new Menu("File");
+        Menu editMenu = new Menu("Edit");
+        Menu viewMenu = new Menu("View");
+        Menu optionsMenu = new Menu("Options");
 
         // Exit menu configuration
         MenuItem exitItem = new MenuItem("Exit");
@@ -21,7 +24,7 @@ public class Main extends Application {
 
         // Add things to the menus (and bar)
         fileMenu.getItems().add(exitItem);
-        mainMenuBar.getMenus().add(fileMenu);
+        mainMenuBar.getMenus().addAll(fileMenu, editMenu, viewMenu, optionsMenu);
 
         // Tab Pane set up
         TabPane tabPane = new TabPane();
