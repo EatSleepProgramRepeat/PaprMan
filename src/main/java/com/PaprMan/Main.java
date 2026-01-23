@@ -16,7 +16,8 @@ import javafx.stage.StageStyle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -25,6 +26,8 @@ public class Main extends Application {
     private final ImageProcessor imageProcessor = new ImageProcessor();
 
     private File selectedFile;
+
+    private int numberOfColumns = 3;
 
     @SuppressWarnings("unused")
     @Override
@@ -101,12 +104,8 @@ public class Main extends Application {
         ;
 
         // Fix for Linux systems
-        if (!Constants.OS_NAME.contains("win")) {
+        if (Constants.IS_LINUX) {
             stage.initStyle(StageStyle.UTILITY);
-        }
-
-        if (!Constants.OS_NAME.matches(".*(nix|nux).*")) {
-            showAlert("Warning: Your computer may not work with this program. This program is specifically designed for Linux computers with Hyprpaper. You may continue, but it is not recommended.", "Warning");
         }
 
         // #######################
@@ -147,6 +146,8 @@ public class Main extends Application {
                             SwingFXUtils.toFXImage(b, wr);
                             ImageView imageView = new ImageView(wr);
                             GridPane.setConstraints(imageView, col, row);
+                            GridPane.setFillWidth(imageView, true);
+                            GridPane.setFillHeight(imageView, true);
                             mainImagePane.getChildren().add(imageView);
                             col++;
                         }
@@ -181,15 +182,22 @@ public class Main extends Application {
         stage.setWidth(Constants.DEFAULT_STAGE_WIDTH);
         stage.setHeight(Constants.DEFAULT_STAGE_HEIGHT);
         stage.show();
+
+        if (!Constants.IS_LINUX) {
+            showAlert("Warning: Your computer may not work with this program. This program is specifically designed for Linux computers with Hyprpaper. You may continue, but it is not recommended.", "Warning");
+        }
     }
 
     private void updateColumnConstraints(int c , GridPane p) {
-        // Iterate over all columns to set constraints
-        for (int i = 0; i < c; i++) {
-            ColumnConstraints constraints = new ColumnConstraints();
-            constraints.setPercentWidth((double) 100 / c);
-            p.getColumnConstraints().removeAll();
-            p.getColumnConstraints().add(constraints);
+        if (c < 5 && c > 1) {
+            numberOfColumns = c;
+            // Iterate over all columns to set constraints
+            for (int i = 0; i < c; i++) {
+                ColumnConstraints constraints = new ColumnConstraints();
+                constraints.setPercentWidth((double) 100 / c);
+                p.getColumnConstraints().removeAll();
+                p.getColumnConstraints().add(constraints);
+            }
         }
     }
 
