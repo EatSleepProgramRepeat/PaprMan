@@ -134,7 +134,12 @@ public class Main extends Application {
                                         .toLowerCase()
                                         .matches(".*\\.(png|jpg|jpeg|gif)$"))
                                 .toList();
-                        BufferedImage[] thumbnails = imageProcessor.generateLowResolutionImages(images.toArray(new Path[0]));
+                        BufferedImage[] thumbnails = new BufferedImage[0];
+                        try {
+                            thumbnails = imageProcessor.generateLowResolutionImages(images.toArray(new Path[0]));
+                        } catch (IOException ex) {
+                            showAlert("There was an error loading one of the images. Here's more info:" + ex.getLocalizedMessage(), "Critical Error");
+                        }
                         int row = 0; int col = 0;
                         for (BufferedImage b : thumbnails) {
                             if (col > 2) {row++; col=0;}
