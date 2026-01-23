@@ -1,5 +1,6 @@
 ## #5 Correctly set up the Open Folder button to select a directory and filter out image files
 #### Branch name: 5-setup-open-folder
+[Back](../TODO.md)
 
 ### Task Description:
 
