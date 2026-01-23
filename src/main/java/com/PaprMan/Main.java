@@ -2,6 +2,7 @@ package com.PaprMan;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -21,10 +22,8 @@ import java.util.stream.Stream;
 
 public class Main extends Application {
     private final ImageProcessor imageProcessor = new ImageProcessor();
-
     private File selectedFile;
-
-    private int selectedImageHeight;
+    private int selectedHeight = Constants.MEDIUM_ICON_IMAGE_HEIGHT;
 
     @SuppressWarnings("unused")
     @Override
@@ -171,23 +170,14 @@ public class Main extends Application {
         // #################################
         // View menu options event listeners
 
-        // Set the default icon height
-        selectedImageHeight = Constants.MEDIUM_ICON_IMAGE_HEIGHT;
-
         // Large icons
-        viewIconsLarge.setOnAction(e -> {
-            selectedImageHeight = Constants.LARGE_ICON_IMAGE_HEIGHT;
-        });
+        viewIconsLarge.setOnAction(e -> adjustThumbnailSize(Constants.LARGE_ICON_IMAGE_HEIGHT, mainImagePane));
 
         // Medium icons
-        viewIconsMedium.setOnAction(e -> {
-            selectedImageHeight = Constants.MEDIUM_ICON_IMAGE_HEIGHT;
-        });
+        viewIconsMedium.setOnAction(e -> adjustThumbnailSize(Constants.MEDIUM_ICON_IMAGE_HEIGHT, mainImagePane));
 
         // Small Icons
-        viewIconsSmall.setOnAction(e -> {
-            selectedImageHeight = Constants.SMALL_ICON_IMAGE_HEIGHT;
-        });
+        viewIconsSmall.setOnAction(e -> adjustThumbnailSize(Constants.SMALL_ICON_IMAGE_HEIGHT, mainImagePane));
 
         stage.setScene(scene);
         stage.setTitle("PaprMan " + Constants.VERSION_NUMBER);
@@ -218,6 +208,8 @@ public class Main extends Application {
     private BorderPane generateRow(ImageView iv, Path path, boolean shaded) {
         BorderPane borderPane = new BorderPane();
 
+        iv.setPreserveRatio(true);
+        iv.setFitHeight(selectedHeight);
         borderPane.setLeft(iv);
         borderPane.setCenter(new Label(path.getFileName().toString()));
 
@@ -233,5 +225,17 @@ public class Main extends Application {
         borderPane.setStyle(borderPane.getStyle() + "-fx-padding: 2px;");
 
         return borderPane;
+    }
+
+    private void adjustThumbnailSize(int size, VBox root) {
+        selectedHeight = size;
+        for (Node child : root.getChildren()) {
+            if (child instanceof BorderPane borderPane) {
+                Node imageViewNode = borderPane.getLeft();
+                if (imageViewNode instanceof ImageView imageView) {
+                    imageView.setFitHeight(size);
+                }
+            }
+        }
     }
 }
