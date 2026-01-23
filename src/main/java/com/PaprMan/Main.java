@@ -101,6 +101,10 @@ public class Main extends Application {
             stage.initStyle(StageStyle.UTILITY);
         }
 
+        if (!Constants.OS_NAME.matches(".*(nix|nux).*")) {
+            showAlert("Warning: Your computer may not work with this program. This program is specifically designed for Linux computers with Hyprpaper. You may continue, but it is not recommended.", "Warning");
+        }
+
         // #######################
         // ### EVENT LISTENERS ###
         // #######################
