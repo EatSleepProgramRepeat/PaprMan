@@ -1,9 +1,11 @@
 package com.PaprMan;
 
 import javafx.application.Application;
-import javafx.scene.Node;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -11,6 +13,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -119,19 +122,28 @@ public class Main extends Application {
 
             selectedFile = directoryChooser.showDialog(stage);
 
-            int row=0, col=0;
             if (selectedFile != null) {
                 // Check for any image files
                 imageProcessor.setImageDirectory(selectedFile);
                 if (imageProcessor.imagesPresent()) {
                     try (Stream<Path> stream = Files.list(selectedFile.toPath())) {
-                        List<Path> images = stream.filter(p -> p.getFileName().toString().toLowerCase().matches(".*\\.(png|jpg|jpeg|gif)$")).toList();
-                        for (Path p : images) {
-                            Label label = new Label(p.getFileName().toString());
-                            if (col > 2) {col = 0; row++;}
-                            GridPane.setConstraints(label, col, row);
+                        // Match all image files for list
+                        List<Path> images = stream.filter(
+                                p -> p.getFileName()
+                                        .toString()
+                                        .toLowerCase()
+                                        .matches(".*\\.(png|jpg|jpeg|gif)$"))
+                                .toList();
+                        BufferedImage[] thumbnails = imageProcessor.generateLowResolutionImages(images.toArray(new Path[0]));
+                        int row = 0; int col = 0;
+                        for (BufferedImage b : thumbnails) {
+                            if (col > 2) {row++; col=0;}
+                            WritableImage wr = new WritableImage(b.getWidth(), b.getHeight());
+                            SwingFXUtils.toFXImage(b, wr);
+                            ImageView imageView = new ImageView(wr);
+                            GridPane.setConstraints(imageView, col, row);
+                            mainImagePane.getChildren().add(imageView);
                             col++;
-                            mainImagePane.getChildren().add(label);
                         }
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
@@ -158,10 +170,6 @@ public class Main extends Application {
         viewIconsLarge.setOnAction(e -> updateColumnConstraints(2, mainImagePane));
 
         updateColumnConstraints(3, mainImagePane);
-        System.out.println("this line got reached");
-        for (Node node : mainImagePane.getChildren()) {
-            System.out.println(node.toString());
-        }
 
         stage.setScene(scene);
         stage.setTitle("PaprMan " + Constants.VERSION_NUMBER);
