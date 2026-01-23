@@ -1,28 +1,29 @@
 package com.PaprMan;
 
 import javafx.application.Application;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 public class Main extends Application {
-    private ImageProcessor imageProcessor = new ImageProcessor();
+    private final ImageProcessor imageProcessor = new ImageProcessor();
 
     private File selectedFile;
 
+    @SuppressWarnings("unused")
     @Override
     public void start(Stage stage) throws Exception {
         // Menu Bar setup tests...
@@ -84,19 +85,19 @@ public class Main extends Application {
         mainImagePane.setMaxWidth(Double.MAX_VALUE);
         mainImagePane.setMaxHeight(Double.MAX_VALUE);
 
+        // BorderPane root configuration
         BorderPane root = new BorderPane();
         root.setTop(mainMenuBar);
         root.setCenter(mainImagePane);
 
         Scene scene = new Scene(root);
-
         scene.getStylesheets().add(
                 Objects.requireNonNull(
                         getClass().getResource("/style/style.css")
                 ).toExternalForm())
         ;
 
-        // Fix for linux systems
+        // Fix for Linux systems
         if (!Constants.OS_NAME.contains("win")) {
             stage.initStyle(StageStyle.UTILITY);
         }
@@ -118,16 +119,23 @@ public class Main extends Application {
 
             selectedFile = directoryChooser.showDialog(stage);
 
+            int row=0, col=0;
             if (selectedFile != null) {
                 // Check for any image files
                 imageProcessor.setImageDirectory(selectedFile);
                 if (imageProcessor.imagesPresent()) {
-                    // Processing code for images that exist.
-//                    try (Stream<Path> stream = Files.newDirectoryStream(selectedFile.toPath(), "")) {
-//                        stream.filter()
-//                    } catch (IOException ex) {
-//                        throw new RuntimeException(ex);
-//                    }
+                    try (Stream<Path> stream = Files.list(selectedFile.toPath())) {
+                        List<Path> images = stream.filter(p -> p.getFileName().toString().toLowerCase().matches(".*\\.(png|jpg|jpeg|gif)$")).toList();
+                        for (Path p : images) {
+                            Label label = new Label(p.getFileName().toString());
+                            if (col > 2) {col = 0; row++;}
+                            GridPane.setConstraints(label, col, row);
+                            col++;
+                            mainImagePane.getChildren().add(label);
+                        }
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
 
                 } else {
                     showAlert(
@@ -136,25 +144,24 @@ public class Main extends Application {
                     );
                 }
             }
+
         });
 
         // View menu options event listeners
         // Small Icons
-        viewIconsSmall.setOnAction(e -> {
-            updateColumnConstraints(4, mainImagePane);
-        });
+        viewIconsSmall.setOnAction(e -> updateColumnConstraints(4, mainImagePane));
 
         // Medium Icons
-        viewIconsMedium.setOnAction(e -> {
-            updateColumnConstraints(3, mainImagePane);
-        });
+        viewIconsMedium.setOnAction(e -> updateColumnConstraints(3, mainImagePane));
 
         // Large Icons
-        viewIconsLarge.setOnAction(e -> {
-            updateColumnConstraints(2, mainImagePane);
-        });
+        viewIconsLarge.setOnAction(e -> updateColumnConstraints(2, mainImagePane));
 
         updateColumnConstraints(3, mainImagePane);
+        System.out.println("this line got reached");
+        for (Node node : mainImagePane.getChildren()) {
+            System.out.println(node.toString());
+        }
 
         stage.setScene(scene);
         stage.setTitle("PaprMan " + Constants.VERSION_NUMBER);
@@ -176,6 +183,7 @@ public class Main extends Application {
     private void showAlert(String bt, String tt) {
         Dialog<Boolean> dialog = new Dialog<>();
         ButtonType buttonType = new ButtonType("OK", ButtonType.OK.getButtonData());
+        dialog.setTitle(tt);
         dialog.getDialogPane().getButtonTypes().add(buttonType);
         dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/style.css")).toExternalForm());
         dialog.initStyle(StageStyle.UTILITY);
