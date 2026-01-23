@@ -3,6 +3,7 @@ package com.PaprMan;
 public class Constants {
     public static final String VERSION_NUMBER = "v1.0-ALPHA";
     public static final String OS_NAME = System.getProperty("os.name");
+    public static final boolean IS_LINUX = Constants.OS_NAME.matches(".*(nix|nux).*");
 
     public static final int DEFAULT_STAGE_HEIGHT = 600;
     public static final int DEFAULT_STAGE_WIDTH = 800;
