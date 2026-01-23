@@ -1,19 +1,16 @@
 package com.PaprMan;
 
 import javafx.application.Application;
-import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,7 +24,7 @@ public class Main extends Application {
 
     private File selectedFile;
 
-    private int numberOfColumns = 3;
+    private int selectedImageHeight;
 
     @SuppressWarnings("unused")
     @Override
@@ -87,21 +84,29 @@ public class Main extends Application {
         );
 
         // Main image pane setup
-        GridPane mainImagePane = new GridPane();
-        mainImagePane.setMaxWidth(Double.MAX_VALUE);
-        mainImagePane.setMaxHeight(Double.MAX_VALUE);
+        VBox mainImagePane = new VBox();
+
+        // ScrollPane setup
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(mainImagePane);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle(
+                "-fx-background-color: transparent; " +
+                        "-fx-viewport-background: transparent;"
+        );
+        System.out.println(scrollPane.getStyle());
 
         // BorderPane root configuration
         BorderPane root = new BorderPane();
         root.setTop(mainMenuBar);
-        root.setCenter(mainImagePane);
+        root.setCenter(scrollPane);
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(
-                Objects.requireNonNull(
-                        getClass().getResource("/style/style.css")
-                ).toExternalForm())
-        ;
+//        scene.getStylesheets().add(
+//                Objects.requireNonNull(
+//                        getClass().getResource("/style/style.css")
+//                ).toExternalForm())
+//        ;
 
         // Fix for Linux systems
         if (Constants.IS_LINUX) {
@@ -112,6 +117,7 @@ public class Main extends Application {
         // ### EVENT LISTENERS ###
         // #######################
 
+        // #################################
         // File menu options event listeners
         // Open Folder...
         fileOpenFolder.setOnAction(e -> {
@@ -125,6 +131,7 @@ public class Main extends Application {
                 // Check for any image files
                 imageProcessor.setImageDirectory(selectedFile);
                 if (imageProcessor.imagesPresent()) {
+                    mainImagePane.getChildren().removeAll();
                     try (Stream<Path> stream = Files.list(selectedFile.toPath())) {
                         // Match all image files for list
                         List<Path> images = stream.filter(
@@ -133,23 +140,19 @@ public class Main extends Application {
                                         .toLowerCase()
                                         .matches(".*\\.(png|jpg|jpeg|gif)$"))
                                 .toList();
-                        BufferedImage[] thumbnails = new BufferedImage[0];
+                        ImageView[] thumbnails = new ImageView[0];
+                        Path[] paths = images.toArray(new Path[0]);
                         try {
-                            thumbnails = imageProcessor.generateLowResolutionImages(images.toArray(new Path[0]));
+                            thumbnails = imageProcessor.generateLowResolutionImages(paths);
                         } catch (IOException ex) {
                             showAlert("There was an error loading one of the images. Here's more info:" + ex.getLocalizedMessage(), "Critical Error");
                         }
-                        int row = 0; int col = 0;
-                        for (BufferedImage b : thumbnails) {
-                            if (col > 2) {row++; col=0;}
-                            WritableImage wr = new WritableImage(b.getWidth(), b.getHeight());
-                            SwingFXUtils.toFXImage(b, wr);
-                            ImageView imageView = new ImageView(wr);
-                            GridPane.setConstraints(imageView, col, row);
-                            GridPane.setFillWidth(imageView, true);
-                            GridPane.setFillHeight(imageView, true);
-                            mainImagePane.getChildren().add(imageView);
-                            col++;
+                        int i = 0;
+                        for (ImageView b : thumbnails) {
+                            // Recursively loop over thumbnails
+                            BorderPane generatedRow = generateRow(b, paths[i], i % 2 == 0);
+                            mainImagePane.getChildren().add(generatedRow);
+                            i++;
                         }
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
@@ -165,17 +168,26 @@ public class Main extends Application {
 
         });
 
+        // #################################
         // View menu options event listeners
+
+        // Set the default icon height
+        selectedImageHeight = Constants.MEDIUM_ICON_IMAGE_HEIGHT;
+
+        // Large icons
+        viewIconsLarge.setOnAction(e -> {
+            selectedImageHeight = Constants.LARGE_ICON_IMAGE_HEIGHT;
+        });
+
+        // Medium icons
+        viewIconsMedium.setOnAction(e -> {
+            selectedImageHeight = Constants.MEDIUM_ICON_IMAGE_HEIGHT;
+        });
+
         // Small Icons
-        viewIconsSmall.setOnAction(e -> updateColumnConstraints(4, mainImagePane));
-
-        // Medium Icons
-        viewIconsMedium.setOnAction(e -> updateColumnConstraints(3, mainImagePane));
-
-        // Large Icons
-        viewIconsLarge.setOnAction(e -> updateColumnConstraints(2, mainImagePane));
-
-        updateColumnConstraints(3, mainImagePane);
+        viewIconsSmall.setOnAction(e -> {
+            selectedImageHeight = Constants.SMALL_ICON_IMAGE_HEIGHT;
+        });
 
         stage.setScene(scene);
         stage.setTitle("PaprMan " + Constants.VERSION_NUMBER);
@@ -185,19 +197,6 @@ public class Main extends Application {
 
         if (!Constants.IS_LINUX) {
             showAlert("Warning: Your computer may not work with this program. This program is specifically designed for Linux computers with Hyprpaper. You may continue, but it is not recommended.", "Warning");
-        }
-    }
-
-    private void updateColumnConstraints(int c , GridPane p) {
-        if (c < 5 && c > 1) {
-            numberOfColumns = c;
-            // Iterate over all columns to set constraints
-            for (int i = 0; i < c; i++) {
-                ColumnConstraints constraints = new ColumnConstraints();
-                constraints.setPercentWidth((double) 100 / c);
-                p.getColumnConstraints().removeAll();
-                p.getColumnConstraints().add(constraints);
-            }
         }
     }
 
@@ -214,5 +213,25 @@ public class Main extends Application {
         dialog.getDialogPane().setContent(information);
 
         dialog.show();
+    }
+
+    private BorderPane generateRow(ImageView iv, Path path, boolean shaded) {
+        BorderPane borderPane = new BorderPane();
+
+        borderPane.setLeft(iv);
+        borderPane.setCenter(new Label(path.getFileName().toString()));
+
+        Button button = new Button("Apply");
+        VBox buttonBox = new VBox(button);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        borderPane.setRight(buttonBox);
+
+        if (shaded) {
+            borderPane.setStyle("-fx-background-color: lightgray;");
+        }
+        borderPane.setStyle(borderPane.getStyle() + "-fx-padding: 2px;");
+
+        return borderPane;
     }
 }
