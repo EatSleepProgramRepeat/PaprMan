@@ -69,7 +69,6 @@ public class Main extends Application {
         fileMenu.getItems().addAll(
                 fileSave, fileOpenFolder, fileOpenConfig, exitItem
         );
-        // editMenu.getItems().addAll();
         viewMenu.getItems().addAll(
                 viewIconsSmall, viewIconsMedium, viewIconsLarge, viewList,
                 new SeparatorMenuItem(),
@@ -98,14 +97,16 @@ public class Main extends Application {
         // BorderPane root configuration
         BorderPane root = new BorderPane();
         root.setTop(mainMenuBar);
-        root.setCenter(scrollPane);
+        Label helpLabel = new Label("Click on File > Open Folder... to select your wallpaper folder!");
+        helpLabel.setStyle("-fx-text-fill: white;");
+        root.setCenter(helpLabel);
 
         Scene scene = new Scene(root);
-//        scene.getStylesheets().add(
-//                Objects.requireNonNull(
-//                        getClass().getResource("/style/style.css")
-//                ).toExternalForm())
-//        ;
+        scene.getStylesheets().add(
+                Objects.requireNonNull(
+                        getClass().getResource("/style/style.css")
+                ).toExternalForm())
+        ;
 
         // Fix for Linux systems
         if (Constants.IS_LINUX) {
@@ -131,6 +132,12 @@ public class Main extends Application {
                 imageProcessor.setImageDirectory(selectedFile);
                 if (imageProcessor.imagesPresent()) {
                     mainImagePane.getChildren().removeAll();
+
+                    // Replace help label with image pane
+                    if (root.getCenter() instanceof Label) {
+                        root.setCenter(scrollPane);
+                    }
+
                     try (Stream<Path> stream = Files.list(selectedFile.toPath())) {
                         // Match all image files for list
                         List<Path> images = stream.filter(
@@ -195,7 +202,7 @@ public class Main extends Application {
         ButtonType buttonType = new ButtonType("OK", ButtonType.OK.getButtonData());
         dialog.setTitle(tt);
         dialog.getDialogPane().getButtonTypes().add(buttonType);
-        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/style.css")).toExternalForm());
+        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/alert.css")).toExternalForm());
         dialog.initStyle(StageStyle.UTILITY);
 
 
@@ -211,7 +218,9 @@ public class Main extends Application {
         iv.setPreserveRatio(true);
         iv.setFitHeight(selectedHeight);
         borderPane.setLeft(iv);
-        borderPane.setCenter(new Label(path.getFileName().toString()));
+        Label label = new Label(path.getFileName().toString());
+        label.setStyle("-fx-text-fill: white;");
+        borderPane.setCenter(label);
 
         Button button = new Button("Apply");
         VBox buttonBox = new VBox(button);
@@ -220,9 +229,9 @@ public class Main extends Application {
         borderPane.setRight(buttonBox);
 
         if (shaded) {
-            borderPane.setStyle("-fx-background-color: lightgray;");
+            borderPane.setStyle("-fx-background-color: #676767;");
         }
-        borderPane.setStyle(borderPane.getStyle() + "-fx-padding: 2px;");
+        borderPane.setStyle(borderPane.getStyle() + "-fx-padding: 5px;");
 
         return borderPane;
     }
