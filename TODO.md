@@ -1,11 +1,12 @@
 # Project Roadmap
 [View Template](docs/todotemplate.md)
-Current issue number: 9
+Current issue number: 10
 
 ### Todo
 - [ ] #6 Make in-house CSS styles (dark theme) [More Information...](docs/6-in-house-css.md) (6-in-house-css)
 - [ ] #8 Correctly set-up grid layout (not using GridPane) (8-setup-grid-layout)
 - [ ] #9 Make click-zoom submethod to zoom images when clicked (only on List layout) (9-click-zoom)
+- [ ] #10 Start developing cache subsystem [More Information...](docs/10-start-cache-subs.md) (10-start-cache-subs) 
 
 ### In Progress
 
