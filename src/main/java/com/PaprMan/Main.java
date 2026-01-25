@@ -21,9 +21,11 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Main extends Application {
-    private final ImageProcessor imageProcessor = new ImageProcessor();
+    private final ImageProcessor imageProcessor = new ImageProcessor(this);
     private File selectedFile;
     private int selectedHeight = Constants.MEDIUM_ICON_IMAGE_HEIGHT;
+
+    private VBox mainImagePane = new VBox();
 
     @SuppressWarnings("unused")
     @Override
@@ -82,7 +84,7 @@ public class Main extends Application {
         );
 
         // Main image pane setup
-        VBox mainImagePane = new VBox();
+        mainImagePane = new VBox();
 
         // ScrollPane setup
         ScrollPane scrollPane = new ScrollPane();
@@ -149,17 +151,17 @@ public class Main extends Application {
                         ImageView[] thumbnails = new ImageView[0];
                         Path[] paths = images.toArray(new Path[0]);
                         try {
-                            thumbnails = imageProcessor.generateLowResolutionImages(paths);
+                            imageProcessor.generateLowResolutionImages(paths);
                         } catch (IOException ex) {
                             showAlert("There was an error loading one of the images. Here's more info:" + ex.getLocalizedMessage(), "Critical Error");
                         }
-                        int i = 0;
-                        for (ImageView b : thumbnails) {
-                            // Recursively loop over thumbnails
-                            BorderPane generatedRow = generateRow(b, paths[i], i % 2 == 0);
-                            mainImagePane.getChildren().add(generatedRow);
-                            i++;
-                        }
+//                        int i = 0;
+//                        for (ImageView b : thumbnails) {
+//                            // Recursively loop over thumbnails
+//                            BorderPane generatedRow = generateRow(b, paths[i], i % 2 == 0);
+//                            mainImagePane.getChildren().add(generatedRow);
+//                            i++;
+//                        }
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -212,7 +214,7 @@ public class Main extends Application {
         dialog.show();
     }
 
-    private BorderPane generateRow(ImageView iv, Path path, boolean shaded) {
+    public BorderPane generateRow(ImageView iv, Path path, boolean shaded) {
         BorderPane borderPane = new BorderPane();
 
         iv.setPreserveRatio(true);
@@ -246,5 +248,13 @@ public class Main extends Application {
                 }
             }
         }
+    }
+
+    public VBox getMainImagePane() {
+        return mainImagePane;
+    }
+
+    public void setMainImagePane(VBox mainImagePane) {
+        this.mainImagePane = mainImagePane;
     }
 }

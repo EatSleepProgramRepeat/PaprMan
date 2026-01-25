@@ -1,8 +1,7 @@
 package com.PaprMan;
 
-import javafx.scene.shape.Path;
-
 import java.awt.image.BufferedImage;
+import java.nio.file.Path;
 
 public class BufferedImagePathWrapper {
     private BufferedImage bufferedImage;
