@@ -19,4 +19,6 @@ public class Constants {
     public static final int SMALL_ICON_IMAGE_HEIGHT_GRID = 50;
     public static final int MEDIUM_ICON_IMAGE_HEIGHT_GRID = 125;
     public static final int LARGE_ICON_IMAGE_HEIGHT_GRID = 200;
+
+    public static final int MAX_THREADS = 4;
 }

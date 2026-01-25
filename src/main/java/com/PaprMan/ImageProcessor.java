@@ -9,11 +9,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class ImageProcessor {
@@ -33,6 +35,7 @@ public class ImageProcessor {
     }
 
     public ImageView[] generateLowResolutionImages(Path[] paths) throws IOException {
+        /*
         ArrayList<ImageView> imageArrayList = new ArrayList<>();
         for (Path p : paths) {
             BufferedImage originalImage = ImageIO.read(p.toFile());
@@ -77,6 +80,33 @@ public class ImageProcessor {
             imageArrayList.add(iv);
         }
         return imageArrayList.toArray(new ImageView[0]);
+         */
+        BufferedImage[] bufferedImages = new BufferedImage[paths.length];
+        for (int i = 0; i < paths.length; i++) {
+            bufferedImages[i] = ImageIO.read(paths[i].toFile());
+        }
+
+        // Send them off to the splitter
+        BufferedImage[][] bufferedImageChunks = splitImageArrays(
+                bufferedImages,
+                Constants.MAX_THREADS
+        );
+
+        return new ImageView[2];
+    }
+
+    public BufferedImage[][] splitImageArrays(BufferedImage[] ia, int chunkCount) {
+        BufferedImage[][] chunks = new BufferedImage[chunkCount][];
+        int chunkSize = (int) Math.ceil((double) ia.length / chunkCount);
+        for (int i = 0; i < chunkCount; i++) {
+            int start = i * chunkSize;
+            int end = Math.min(start + chunkSize, ia.length);
+            BufferedImage[] chunk = new BufferedImage[end - start];
+            if (end - start >= 0) System.arraycopy(ia, start, chunk, 0, end - start);
+            chunks[i] = chunk;
+        }
+
+        return chunks;
     }
 
     public ImageProcessor(File imageDirectory) {
