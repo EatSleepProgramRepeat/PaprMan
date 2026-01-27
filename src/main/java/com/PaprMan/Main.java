@@ -1,6 +1,7 @@
 package com.PaprMan;
 
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -20,6 +21,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 public class Main extends Application {
@@ -30,6 +33,8 @@ public class Main extends Application {
     private VBox mainImagePane = new VBox();
 
     private final Label statusLabel = new Label("Status: Ready");
+
+    private final Executor executor = Executors.newSingleThreadExecutor();
 
     @SuppressWarnings("unused")
     @Override
@@ -144,54 +149,51 @@ public class Main extends Application {
             directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
             selectedFile = directoryChooser.showDialog(stage);
+            imageProcessor.setImageDirectory(selectedFile);
 
-            setCurrentStatus("Loading Images...", Color.BLUE);
+            if (selectedFile != null && imageProcessor.imagesPresent()) {
+                setCurrentStatus("Loading Images...", Color.BLUE);
 
-            if (selectedFile != null) {
-                // Check for any image files
-                imageProcessor.setImageDirectory(selectedFile);
-                if (imageProcessor.imagesPresent()) {
-                    mainImagePane.getChildren().removeAll();
-
-                    // Replace help label with image pane
-                    if (root.getCenter() instanceof Label) {
-                        root.setCenter(scrollPane);
-                    }
-
-                    try (Stream<Path> stream = Files.list(selectedFile.toPath())) {
-                        // Match all image files for list
-                        List<Path> images = stream.filter(
-                                p -> p.getFileName()
-                                        .toString()
-                                        .toLowerCase()
-                                        .matches(".*\\.(png|jpg|jpeg|gif)$"))
-                                .toList();
-                        ImageView[] thumbnails = new ImageView[0];
-                        Path[] paths = images.toArray(new Path[0]);
-                        try {
-                            imageProcessor.generateLowResolutionImages(paths);
-                        } catch (IOException ex) {
-                            showAlert("There was an error loading one of the images. Here's more info:" + ex.getLocalizedMessage(), "Critical Error");
+                Task<Path[]> loadTask = new Task<Path[]>() {
+                    @Override
+                    protected Path[] call() throws Exception {
+                        try (Stream<Path> stream = Files.list(selectedFile.toPath())) {
+                            // Match all image files for list
+                            List<Path> images = stream.filter(
+                                            p -> p.getFileName()
+                                                    .toString()
+                                                    .toLowerCase()
+                                                    .matches(".*\\.(png|jpg|jpeg|gif)$"))
+                                    .toList();
+                            return images.toArray(new Path[0]);
                         }
-//                        int i = 0;
-//                        for (ImageView b : thumbnails) {
-//                            // Recursively loop over thumbnails
-//                            BorderPane generatedRow = generateRow(b, paths[i], i % 2 == 0);
-//                            mainImagePane.getChildren().add(generatedRow);
-//                            i++;
-//                        }
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
                     }
+                };
 
-                } else {
-                    showAlert(
-                            "There were no image files found in the directory you selected.",
-                            "Error"
-                    );
-                }
+                loadTask.setOnSucceeded(event -> {
+                    Path[] paths = loadTask.getValue();
+
+                    if (paths.length > 0) {
+                        try {
+                            mainImagePane.getChildren().clear();
+                            if (root.getCenter() instanceof Label) root.setCenter(scrollPane);
+
+                            imageProcessor.generateLowResolutionImages(paths);
+                            setCurrentStatus("Images Loaded", Color.GREEN);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    } else {
+                        setCurrentStatus("Image Error", Color.RED);
+                        showAlert(
+                                "There were no image files found in the directory you selected.",
+                                "Error"
+                        );
+                    }
+                });
+
+                executor.execute(loadTask);
             }
-
         });
 
         // #################################
