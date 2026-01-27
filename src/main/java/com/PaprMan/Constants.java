@@ -1,5 +1,6 @@
 package com.PaprMan;
 
+@SuppressWarnings("unused")
 public class Constants {
     public static final String VERSION_NUMBER = "v1.0-ALPHA";
     public static final String OS_NAME = System.getProperty("os.name");

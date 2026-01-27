@@ -2,6 +2,9 @@ plugins {
     java
     id("org.openjfx.javafxplugin") version "0.0.13"
     application
+
+    // Spotless gradle plugin
+    id("com.diffplug.spotless") version "8.2.0"
 }
 
 group =  "com.PaprMan"
@@ -24,4 +27,18 @@ java {
 
 application {
     mainClass.set("com.PaprMan.Main")
+}
+
+// Clean code setup
+spotless {
+    java {
+        palantirJavaFormat()
+
+        // Other tasks
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+
+        target("src/**/*.java")
+    }
 }

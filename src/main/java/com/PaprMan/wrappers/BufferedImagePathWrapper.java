@@ -1,8 +1,9 @@
-package com.PaprMan;
+package com.PaprMan.wrappers;
 
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 
+@SuppressWarnings("unused")
 public class BufferedImagePathWrapper {
     private BufferedImage bufferedImage;
     private Path path;

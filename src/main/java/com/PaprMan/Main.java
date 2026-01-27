@@ -25,6 +25,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public class Main extends Application {
     private final ImageProcessor imageProcessor = new ImageProcessor(this);
     private File selectedFile;
@@ -36,16 +37,14 @@ public class Main extends Application {
 
     private final Executor executor = Executors.newSingleThreadExecutor();
 
-    @SuppressWarnings("unused")
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         // Set status label color
         statusLabel.setTextFill(Color.GREEN);
 
-
         // Menu Bar setup tests...
         MenuBar mainMenuBar = new MenuBar();
-        mainMenuBar.setUseSystemMenuBar(false);     // Fix for Linux systems (specifically Wayland)
+        mainMenuBar.setUseSystemMenuBar(false); // Fix for Linux systems (specifically Wayland)
         Menu fileMenu = new Menu("File");
         Menu editMenu = new Menu("Edit");
         Menu viewMenu = new Menu("View");
@@ -60,7 +59,7 @@ public class Main extends Application {
         MenuItem fileOpenConfig = new MenuItem("Open Config File...");
         MenuItem fileSave = new MenuItem("Save");
 
-        //ToggleGroup for view options
+        // ToggleGroup for view options
         ToggleGroup viewOptionToggleGroup = new ToggleGroup();
 
         // View menu options
@@ -81,20 +80,11 @@ public class Main extends Application {
         viewList.setToggleGroup(viewOptionToggleGroup);
 
         // Add things to the menus (and bar)
-        fileMenu.getItems().addAll(
-                fileSave, fileOpenFolder, fileOpenConfig, exitItem
-        );
-        viewMenu.getItems().addAll(
-                viewIconsSmall, viewIconsMedium, viewIconsLarge, viewList,
-                new SeparatorMenuItem(),
-                viewHelp
-        );
-        optionsMenu.getItems().addAll(
-                optionsSettings
-        );
-        mainMenuBar.getMenus().addAll(
-                fileMenu, editMenu, viewMenu, optionsMenu
-        );
+        fileMenu.getItems().addAll(fileSave, fileOpenFolder, fileOpenConfig, exitItem);
+        viewMenu.getItems()
+                .addAll(viewIconsSmall, viewIconsMedium, viewIconsLarge, viewList, new SeparatorMenuItem(), viewHelp);
+        optionsMenu.getItems().addAll(optionsSettings);
+        mainMenuBar.getMenus().addAll(fileMenu, editMenu, viewMenu, optionsMenu);
 
         // Main image pane setup
         mainImagePane = new VBox();
@@ -103,10 +93,7 @@ public class Main extends Application {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(mainImagePane);
         scrollPane.setFitToWidth(true);
-        scrollPane.setStyle(
-                "-fx-background-color: transparent; " +
-                        "-fx-viewport-background: transparent;"
-        );
+        scrollPane.setStyle("-fx-background-color: transparent; " + "-fx-viewport-background: transparent;");
         System.out.println(scrollPane.getStyle());
 
         // BorderPane root configuration
@@ -118,18 +105,13 @@ public class Main extends Application {
 
         // Status label set-up with wrapper HBox
         HBox statusBar = new HBox(statusLabel);
-        statusBar.setStyle(
-                "-fx-background-color: #a2a2a2;" +
-                        "-fx-padding:3px;"
-        );
+        statusBar.setStyle("-fx-background-color: #a2a2a2;" + "-fx-padding:3px;");
         root.setBottom(statusBar);
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(
-                Objects.requireNonNull(
-                        getClass().getResource("/style/style.css")
-                ).toExternalForm())
-        ;
+        scene.getStylesheets()
+                .add(Objects.requireNonNull(getClass().getResource("/style/style.css"))
+                        .toExternalForm());
 
         // Fix for Linux systems
         if (Constants.IS_LINUX) {
@@ -154,16 +136,15 @@ public class Main extends Application {
             if (selectedFile != null && imageProcessor.imagesPresent()) {
                 setCurrentStatus("Loading Images...", Color.BLUE);
 
-                Task<Path[]> loadTask = new Task<Path[]>() {
+                Task<Path[]> loadTask = new Task<>() {
                     @Override
                     protected Path[] call() throws Exception {
                         try (Stream<Path> stream = Files.list(selectedFile.toPath())) {
                             // Match all image files for list
-                            List<Path> images = stream.filter(
-                                            p -> p.getFileName()
-                                                    .toString()
-                                                    .toLowerCase()
-                                                    .matches(".*\\.(png|jpg|jpeg|gif)$"))
+                            List<Path> images = stream.filter(p -> p.getFileName()
+                                            .toString()
+                                            .toLowerCase()
+                                            .matches(".*\\.(png|jpg|jpeg|gif)$"))
                                     .toList();
                             return images.toArray(new Path[0]);
                         }
@@ -185,10 +166,7 @@ public class Main extends Application {
                         }
                     } else {
                         setCurrentStatus("Image Error", Color.RED);
-                        showAlert(
-                                "There were no image files found in the directory you selected.",
-                                "Error"
-                        );
+                        showAlert("There were no image files found in the directory you selected.", "Error");
                     }
                 });
 
@@ -215,7 +193,9 @@ public class Main extends Application {
         stage.show();
 
         if (!Constants.IS_LINUX) {
-            showAlert("Warning: Your computer may not work with this program. This program is specifically designed for Linux computers with Hyprpaper. You may continue, but it is not recommended.", "Warning");
+            showAlert(
+                    "Warning: Your computer may not work with this program. This program is specifically designed for Linux computers with Hyprpaper. You may continue, but it is not recommended.",
+                    "Warning");
         }
     }
 
@@ -224,9 +204,11 @@ public class Main extends Application {
         ButtonType buttonType = new ButtonType("OK", ButtonType.OK.getButtonData());
         dialog.setTitle(tt);
         dialog.getDialogPane().getButtonTypes().add(buttonType);
-        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style/alert.css")).toExternalForm());
+        dialog.getDialogPane()
+                .getStylesheets()
+                .add(Objects.requireNonNull(getClass().getResource("/style/alert.css"))
+                        .toExternalForm());
         dialog.initStyle(StageStyle.UTILITY);
-
 
         Label information = new Label(bt);
         dialog.getDialogPane().setContent(information);

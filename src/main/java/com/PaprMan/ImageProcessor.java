@@ -1,5 +1,7 @@
 package com.PaprMan;
 
+import com.PaprMan.wrappers.BufferedImagePathWrapper;
+import com.PaprMan.wrappers.ImageViewPathWrapper;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.ImageView;
@@ -21,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public class ImageProcessor {
     private File imageDirectory;
 
@@ -44,6 +47,25 @@ public class ImageProcessor {
         }
     }
 
+    public ImageProcessor(File imageDirectory, Main main) {
+        this.imageDirectory = imageDirectory;
+        this.main = main;
+    }
+
+    public BufferedImagePathWrapper[][] splitImageArrays(BufferedImagePathWrapper[] ia, int chunkCount) {
+        BufferedImagePathWrapper[][] chunks = new BufferedImagePathWrapper[chunkCount][];
+        int chunkSize = (int) Math.ceil((double) ia.length / chunkCount);
+        for (int i = 0; i < chunkCount; i++) {
+            int start = i * chunkSize;
+            int end = Math.min(start + chunkSize, ia.length);
+            BufferedImagePathWrapper[] chunk = new BufferedImagePathWrapper[end - start];
+            if (end - start >= 0) System.arraycopy(ia, start, chunk, 0, end - start);
+            chunks[i] = chunk;
+        }
+
+        return chunks;
+    }
+
     public void generateLowResolutionImages(Path[] paths) throws IOException {
         BufferedImagePathWrapper[] bufferedImages = new BufferedImagePathWrapper[paths.length];
         for (int i = 0; i < paths.length; i++) {
@@ -51,11 +73,8 @@ public class ImageProcessor {
         }
 
         // Send them off to the splitter
-        BufferedImagePathWrapper[][] bufferedImageChunks = splitImageArrays(
-                bufferedImages,
-                Constants.MAX_THREADS
-        );
-        
+        BufferedImagePathWrapper[][] bufferedImageChunks = splitImageArrays(bufferedImages, Constants.MAX_THREADS);
+
         List<CompletableFuture<ImageViewPathWrapper[]>> futures = new ArrayList<>();
         for (BufferedImagePathWrapper[] b : bufferedImageChunks) {
             futures.add(CompletableFuture.supplyAsync(() -> {
@@ -74,26 +93,15 @@ public class ImageProcessor {
                         scaledDownWidth = (int) (bb.getWidth() * scaleFactor);
                     } else {
                         throw new RuntimeException(
-                                "Both Constants.FORCED_THUMBNAIL_WIDTH and Constants.FORCED_THUMBNAIL_HEIGHT may not both be zero."
-                        );
+                                "Both Constants.FORCED_THUMBNAIL_WIDTH and Constants.FORCED_THUMBNAIL_HEIGHT may not both be zero.");
                     }
 
-                    BufferedImage downscaledImage = new BufferedImage(
-                            scaledDownWidth,
-                            scaledDownHeight,
-                            BufferedImage.TYPE_INT_ARGB
-                    );
+                    BufferedImage downscaledImage =
+                            new BufferedImage(scaledDownWidth, scaledDownHeight, BufferedImage.TYPE_INT_ARGB);
 
                     Graphics2D g = downscaledImage.createGraphics();
                     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                    g.drawImage(
-                            bb,
-                            0,
-                            0,
-                            scaledDownWidth,
-                            scaledDownHeight,
-                            null
-                    );
+                    g.drawImage(bb, 0, 0, scaledDownWidth, scaledDownHeight, null);
                     g.dispose();
 
                     WritableImage wr = new WritableImage(scaledDownWidth, scaledDownHeight);
@@ -110,33 +118,10 @@ public class ImageProcessor {
         for (CompletableFuture<ImageViewPathWrapper[]> cf : futures) {
             cf.thenAccept(images -> Platform.runLater(() -> {
                 for (ImageViewPathWrapper iv : images) {
-                    main.getMainImagePane().getChildren().add(main.generateRow(
-                            iv.getImageView(),
-                            iv.getPath(),
-                            false
-                    ));
+                    main.getMainImagePane().getChildren().add(main.generateRow(iv.getImageView(), iv.getPath(), false));
                 }
             }));
         }
-    }
-
-    public BufferedImagePathWrapper[][] splitImageArrays(BufferedImagePathWrapper[] ia, int chunkCount) {
-        BufferedImagePathWrapper[][] chunks = new BufferedImagePathWrapper[chunkCount][];
-        int chunkSize = (int) Math.ceil((double) ia.length / chunkCount);
-        for (int i = 0; i < chunkCount; i++) {
-            int start = i * chunkSize;
-            int end = Math.min(start + chunkSize, ia.length);
-            BufferedImagePathWrapper[] chunk = new BufferedImagePathWrapper[end - start];
-            if (end - start >= 0) System.arraycopy(ia, start, chunk, 0, end - start);
-            chunks[i] = chunk;
-        }
-
-        return chunks;
-    }
-
-    public ImageProcessor(File imageDirectory, Main main) {
-            this.imageDirectory = imageDirectory;
-            this.main = main;
     }
 
     public File getImageDirectory() {
