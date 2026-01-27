@@ -7,7 +7,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -27,9 +29,15 @@ public class Main extends Application {
 
     private VBox mainImagePane = new VBox();
 
+    private final Label statusLabel = new Label("Status: Ready");
+
     @SuppressWarnings("unused")
     @Override
     public void start(Stage stage) throws Exception {
+        // Set status label color
+        statusLabel.setTextFill(Color.GREEN);
+
+
         // Menu Bar setup tests...
         MenuBar mainMenuBar = new MenuBar();
         mainMenuBar.setUseSystemMenuBar(false);     // Fix for Linux systems (specifically Wayland)
@@ -103,6 +111,14 @@ public class Main extends Application {
         helpLabel.setStyle("-fx-text-fill: white;");
         root.setCenter(helpLabel);
 
+        // Status label set-up with wrapper HBox
+        HBox statusBar = new HBox(statusLabel);
+        statusBar.setStyle(
+                "-fx-background-color: #a2a2a2;" +
+                        "-fx-padding:3px;"
+        );
+        root.setBottom(statusBar);
+
         Scene scene = new Scene(root);
         scene.getStylesheets().add(
                 Objects.requireNonNull(
@@ -128,6 +144,8 @@ public class Main extends Application {
             directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
             selectedFile = directoryChooser.showDialog(stage);
+
+            setCurrentStatus("Loading Images...", Color.BLUE);
 
             if (selectedFile != null) {
                 // Check for any image files
@@ -256,5 +274,10 @@ public class Main extends Application {
 
     public void setMainImagePane(VBox mainImagePane) {
         this.mainImagePane = mainImagePane;
+    }
+
+    public void setCurrentStatus(String status, Color color) {
+        statusLabel.setText("Status: " + status);
+        statusLabel.setTextFill(color);
     }
 }

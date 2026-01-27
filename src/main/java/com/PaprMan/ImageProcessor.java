@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -16,14 +17,16 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 public class ImageProcessor {
     private File imageDirectory;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(Constants.MAX_THREADS);
-    private final CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
+    // private final CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
 
     private final Main main;
 
@@ -160,6 +163,7 @@ public class ImageProcessor {
                             false
                     ));
                 }
+                main.setCurrentStatus("Done", Color.GREEN);
             }));
         }
     }
