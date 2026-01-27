@@ -1,6 +1,5 @@
 package com.PaprMan;
 
-import com.PaprMan.wrappers.BufferedImagePathWrapper;
 import com.PaprMan.wrappers.ImageViewPathWrapper;
 import java.io.File;
 import java.io.IOException;
@@ -45,20 +44,6 @@ public class ImageProcessor {
     public ImageProcessor(File imageDirectory, Main main) {
         this.imageDirectory = imageDirectory;
         this.main = main;
-    }
-
-    public BufferedImagePathWrapper[][] splitImageArrays(BufferedImagePathWrapper[] ia, int chunkCount) {
-        BufferedImagePathWrapper[][] chunks = new BufferedImagePathWrapper[chunkCount][];
-        int chunkSize = (int) Math.ceil((double) ia.length / chunkCount);
-        for (int i = 0; i < chunkCount; i++) {
-            int start = i * chunkSize;
-            int end = Math.min(start + chunkSize, ia.length);
-            BufferedImagePathWrapper[] chunk = new BufferedImagePathWrapper[end - start];
-            if (end - start >= 0) System.arraycopy(ia, start, chunk, 0, end - start);
-            chunks[i] = chunk;
-        }
-
-        return chunks;
     }
 
     public void generateLowResolutionImages(Path[] paths) throws IOException {
