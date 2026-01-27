@@ -25,6 +25,8 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class ImageProcessor {
+    private boolean lastImageFaded = false;
+
     private File imageDirectory;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(Constants.MAX_THREADS);
@@ -118,7 +120,8 @@ public class ImageProcessor {
         for (CompletableFuture<ImageViewPathWrapper[]> cf : futures) {
             cf.thenAccept(images -> Platform.runLater(() -> {
                 for (ImageViewPathWrapper iv : images) {
-                    main.getMainImagePane().getChildren().add(main.generateRow(iv.getImageView(), iv.getPath(), false));
+                    main.getMainImagePane().getChildren().add(main.generateRow(iv.getImageView(), iv.getPath(), lastImageFaded));
+                    lastImageFaded = !lastImageFaded;
                 }
             }));
         }
