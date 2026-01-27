@@ -1,5 +1,14 @@
 package com.PaprMan;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 import javafx.application.Application;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
@@ -14,16 +23,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class Main extends Application {

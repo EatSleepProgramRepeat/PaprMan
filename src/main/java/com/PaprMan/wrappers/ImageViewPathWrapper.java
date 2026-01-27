@@ -1,8 +1,7 @@
 package com.PaprMan.wrappers;
 
-import javafx.scene.image.ImageView;
-
 import java.nio.file.Path;
+import javafx.scene.image.ImageView;
 
 @SuppressWarnings("unused")
 public class ImageViewPathWrapper {
