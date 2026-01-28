@@ -1,20 +1,15 @@
 package com.PaprMan;
 
 import com.PaprMan.rowformats.ImageViewDataModel;
-import com.PaprMan.wrappers.ImageViewPathWrapper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
-import javafx.application.Platform;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 @SuppressWarnings("unused")
 public class ImageProcessor {

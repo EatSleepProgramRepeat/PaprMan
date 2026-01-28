@@ -11,7 +11,6 @@ import javafx.scene.layout.VBox;
 
 public class ImageViewListRow extends ListCell<ImageViewDataModel> {
     private final BorderPane borderPane = new BorderPane();
-    private final Button button = new Button("Button");
     private final Label pathLabel = new Label();
     private final ImageView imageView = new ImageView();
     private final Main main;
@@ -21,9 +20,8 @@ public class ImageViewListRow extends ListCell<ImageViewDataModel> {
         this.main = main;
         imageFitHeight = main.getSelectedHeight();
 
-        button.setOnAction(_ -> {
-            System.out.println("Button was pressed.");
-        });
+        Button button = new Button("Button");
+        button.setOnAction(_ -> System.out.println("Button was pressed."));
 
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(imageFitHeight);
@@ -54,9 +52,5 @@ public class ImageViewListRow extends ListCell<ImageViewDataModel> {
 
             setGraphic(borderPane);
         }
-    }
-
-    public void setImageFitHeight(int imageFitHeight) {
-        imageView.setFitHeight(imageFitHeight);
     }
 }

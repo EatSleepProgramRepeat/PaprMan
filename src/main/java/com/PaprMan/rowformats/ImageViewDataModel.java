@@ -25,14 +25,6 @@ public class ImageViewDataModel {
         return imagePath;
     }
 
-    public boolean isShaded() {
-        return shaded;
-    }
-
-    public void setShaded(boolean shaded) {
-        this.shaded = shaded;
-    }
-
     public Image getCachedImage() {
         return cachedImage;
     }
