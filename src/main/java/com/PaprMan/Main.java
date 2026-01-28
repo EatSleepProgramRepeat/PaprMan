@@ -1,5 +1,7 @@
 package com.PaprMan;
 
+import com.PaprMan.rowformats.ImageViewDataModel;
+import com.PaprMan.rowformats.ImageViewListRow;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +14,6 @@ import java.util.stream.Stream;
 import javafx.application.Application;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -30,7 +31,7 @@ public class Main extends Application {
     private File selectedFile;
     private int selectedHeight = Constants.MEDIUM_ICON_IMAGE_HEIGHT;
 
-    private VBox mainImagePane = new VBox();
+    private ListView<ImageViewDataModel> mainImagePane = new ListView<>();
 
     private final Label statusLabel = new Label("Status: Ready");
 
@@ -86,14 +87,11 @@ public class Main extends Application {
         mainMenuBar.getMenus().addAll(fileMenu, editMenu, viewMenu, optionsMenu);
 
         // Main image pane setup
-        mainImagePane = new VBox();
+        mainImagePane = new ListView<>();
+        mainImagePane.setPrefHeight(Double.MAX_VALUE);
 
-        // ScrollPane setup
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(mainImagePane);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background-color: transparent; " + "-fx-viewport-background: transparent;");
-        System.out.println(scrollPane.getStyle());
+        // Cell factory config
+        mainImagePane.setCellFactory(listView -> new ImageViewListRow(this));
 
         // BorderPane root configuration
         BorderPane root = new BorderPane();
@@ -155,8 +153,8 @@ public class Main extends Application {
 
                     if (paths.length > 0) {
                         try {
-                            mainImagePane.getChildren().clear();
-                            if (root.getCenter() instanceof Label) root.setCenter(scrollPane);
+                            mainImagePane.getItems().clear();
+                            if (root.getCenter() instanceof Label) root.setCenter(mainImagePane);
 
                             imageProcessor.generateLowResolutionImages(paths);
                             setCurrentStatus("Images Loaded", Color.GREEN);
@@ -239,28 +237,25 @@ public class Main extends Application {
         return borderPane;
     }
 
-    private void adjustThumbnailSize(int size, VBox root) {
+    private void adjustThumbnailSize(int size, ListView<ImageViewDataModel> root) {
         selectedHeight = size;
-        for (Node child : root.getChildren()) {
-            if (child instanceof BorderPane borderPane) {
-                Node imageViewNode = borderPane.getLeft();
-                if (imageViewNode instanceof ImageView imageView) {
-                    imageView.setFitHeight(size);
-                }
-            }
-        }
+        mainImagePane.refresh();
     }
 
-    public VBox getMainImagePane() {
+    public ListView<ImageViewDataModel> getMainImagePane() {
         return mainImagePane;
     }
 
-    public void setMainImagePane(VBox mainImagePane) {
+    public void setMainImagePane(ListView<ImageViewDataModel> mainImagePane) {
         this.mainImagePane = mainImagePane;
     }
 
     public void setCurrentStatus(String status, Color color) {
         statusLabel.setText("Status: " + status);
         statusLabel.setTextFill(color);
+    }
+
+    public int getSelectedHeight() {
+        return selectedHeight;
     }
 }

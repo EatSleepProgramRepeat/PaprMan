@@ -1,5 +1,6 @@
 package com.PaprMan;
 
+import com.PaprMan.rowformats.ImageViewDataModel;
 import com.PaprMan.wrappers.ImageViewPathWrapper;
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import javafx.scene.image.ImageView;
 
 @SuppressWarnings("unused")
 public class ImageProcessor {
-    private boolean lastImageFaded = false;
+    public static boolean lastImageFaded = false;
 
     private File imageDirectory;
 
@@ -48,33 +49,13 @@ public class ImageProcessor {
 
     public void generateLowResolutionImages(Path[] paths) throws IOException {
         for (Path path : paths) {
-            CompletableFuture.supplyAsync(
-                            () -> {
-                                try {
-                                    Image thumbnail = new Image(
-                                            path.toUri().toString(),
-                                            Constants.FORCED_THUMBNAIL_WIDTH,
-                                            Constants.FORCED_THUMBNAIL_HEIGHT,
-                                            true,
-                                            true);
-
-                                    return new ImageViewPathWrapper(new ImageView(thumbnail), path);
-                                } catch (Exception e) {
-                                    return null;
-                                }
-                            },
-                            executorService)
-                    .thenAccept(wrapper -> {
-                        if (wrapper != null) {
-                            Platform.runLater(() -> {
-                                main.getMainImagePane()
-                                        .getChildren()
-                                        .add(main.generateRow(
-                                                wrapper.getImageView(), wrapper.getPath(), lastImageFaded));
-                                lastImageFaded = !lastImageFaded;
-                            });
-                        }
-                    });
+            executorService.submit(() -> {
+                if (path != null) {
+                    ImageViewDataModel dataModel = new ImageViewDataModel(path, lastImageFaded);
+                    main.getMainImagePane().getItems().add(dataModel);
+                    lastImageFaded = !lastImageFaded;
+                }
+            });
         }
     }
 

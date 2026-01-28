@@ -6,10 +6,8 @@ Current issue number: 13
 - [ ] #8 Correctly set-up grid layout (not using GridPane) (8-setup-grid-layout)
 - [ ] #9 Make click-zoom submethod to zoom images when clicked (only on List layout) (9-click-zoom)
 - [ ] #10 Start developing cache subsystem [More Information...](docs/10-start-cache-subs.md) (10-start-cache-subs)
-- [ ] #12 Use ListView to improve image loading logic further. Also, use CellFactory. (12-list-view)
 
 ### In Progress
-
 
 ### Done
 - [X] #1 Fix 'TabPane' to not allow the closing of tabs. (1-tabpane-fix-close)
@@ -23,3 +21,4 @@ Current issue number: 13
 - 
 - 
 - [X] #11 Utilize Multithreading to speed up thumbnail loading [More Information...](docs/11-multithreading.md) (11-multithreading)
+- [X] #12 Use ListView to improve image loading logic further. Also, use CellFactory. (12-list-view)

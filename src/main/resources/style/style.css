@@ -4,7 +4,7 @@
     -fx-accent: #1494af;
 }
 
-.scroll-pane .viewport {
+.scroll-pane .viewport, .list-view {
     -fx-background-color: transparent;
     -fx-text-fill: white;
 }
@@ -39,4 +39,12 @@
 
 .menu-bar .menu {
     -fx-text-fill: black;
+}
+
+.list-cell:even {
+    -fx-background-color: #676767;
+}
+
+.list-cell:odd {
+    -fx-background-color: #949494;
 }
